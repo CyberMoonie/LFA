@@ -1,6 +1,6 @@
 import java.util.*;
 
-class Grammar {     // Class representing the grammar
+class Grammar {
     Set<String> VN; // Non-terminal symbols
     Set<String> VT; // Terminal symbols
     Map<String, List<String>> productions; // Production rules
@@ -14,9 +14,9 @@ class Grammar {     // Class representing the grammar
     public List<String> generateStrings() {
         List<String> strings = new ArrayList<>();
         Random random = new Random();
-        for (int i = 0; i < 3; i++) {     // Generate 5 valid strings from the language
+        for (int i = 0; i < 5; i++) { // Generate 5 valid strings
             StringBuilder sb = new StringBuilder();
-            generateRecursive("S", sb, random);
+            generateRecursive("S", sb, random); // Always start with "S"
             strings.add(sb.toString());
         }
         return strings;
@@ -34,18 +34,17 @@ class Grammar {     // Class representing the grammar
         }
     }
 
-    // Convert the grammar to a finite automaton
     public FiniteAutomaton toFiniteAutomaton() {
         return new FiniteAutomaton(VN, VT, productions);
     }
 }
 
-class FiniteAutomaton {                        // Class representing the Finite Automaton
+class FiniteAutomaton {
     Set<String> states;
     Set<String> alphabet;
-    Map<String, List<String>> transitions;
-    String startState = "S";
-    Set<String> finalStates = Set.of("C");  // Final state is 'C' based on the grammar
+    Map<String, List<String>> transitions; // Transition rules
+    String startState = "S"; // Start state
+    Set<String> finalStates = Set.of("C"); // Final states
 
     public FiniteAutomaton(Set<String> states, Set<String> alphabet, Map<String, List<String>> transitions) {
         this.states = states;
@@ -53,31 +52,35 @@ class FiniteAutomaton {                        // Class representing the Finite 
         this.transitions = transitions;
     }
 
-    // Method to check if a string is accepted by the finite automaton
+    // Check if a string is accepted by the automaton
     public boolean isStringAccepted(String input) {
         return checkString(input, startState);
     }
 
     private boolean checkString(String input, String currentState) {
+        // If the input is empty, check if we're in a final state
         if (input.isEmpty()) {
             return finalStates.contains(currentState);
         }
-        char symbol = input.charAt(0);
-        String remaining = input.substring(1);
 
+        char symbol = input.charAt(0); // First character of input
+        String remaining = input.substring(1); // Remaining input
+
+        // If the current state has no transitions, return false
         if (!transitions.containsKey(currentState)) return false;
 
+        // Check transitions from the current state
         for (String rule : transitions.get(currentState)) {
+            // If the transition matches the current symbol, continue checking
             if (!rule.isEmpty() && rule.charAt(0) == symbol) {
-                String nextState = rule.length() > 1 ? rule.substring(1) : "";
+                String nextState = rule.length() > 1 ? rule.substring(1) : currentState; // Get the next state
                 if (checkString(remaining, nextState)) return true;
             }
         }
-        return false;
+        return false; // No valid transition found
     }
 }
 
-// Main class to run the program
 public class GrammarAutomatonDemo {
     public static void main(String[] args) {
         // Define the grammar
@@ -103,7 +106,7 @@ public class GrammarAutomatonDemo {
         FiniteAutomaton automaton = grammar.toFiniteAutomaton();
 
         // Check if a string is accepted
-        String testString = "aa"; // Example string S → aA | aB or A → bS or  B → aC or C → a | bS
+        String testString = "aaa"; // Example string
         System.out.println("\nIs the string '" + testString + "' accepted? " + automaton.isStringAccepted(testString));
     }
 }
